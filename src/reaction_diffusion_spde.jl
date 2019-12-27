@@ -12,11 +12,13 @@ function initial_conditions_numerical(slob::SLOB, pₙ, V₀)
     return φ
 end
 
+
 function initial_conditions_numerical(slob::SLOB, pₙ)
     ϵ = rand(Normal(0.0, 1.0))
     V₀ =sign(ϵ) * min(abs(slob.σ * ϵ), slob.Δx / slob.Δt)
     return initial_conditions_numerical(slob, pₙ, V₀)
 end
+
 
 function extract_mid_price(slob, lob_density)
     mid_price_ind = 2
@@ -32,43 +34,16 @@ function extract_mid_price(slob, lob_density)
 end
 
 
-function calculate_right_jump_probability(Z)
-    if Z > 10
-        return 1.0
-    elseif Z < -10
-        return 0.0
-    else
-        return (exp(Z))/(exp(-Z) + exp(Z) + 1)
-    end
-end
-
-
 function calculate_left_jump_probability(Z)
-    if Z > 10
-        return 0.0
-    elseif Z < -10
-        return 1.0
-    else
-        return (exp(-Z))/(exp(-Z) + exp(Z) + 1)
-    end
-end
-
-
-function calculate_self_jump_probability(Z)
-    if Z > 10
-        return 0.0
-    elseif Z < -10
-        return 0.0
-    else
-        return 1/(exp(-Z) + exp(Z) + 1)
-    end
+    return 1/(exp(Z) + 1)
 end
 
 
 function calculate_jump_probabilities(slob, Vₜ)
-    Z = (slob.β * Vₜ * slob.Δx) / (2* slob.D)
-    return calculate_right_jump_probability(Z),
-        calculate_left_jump_probability(Z), calculate_self_jump_probability(Z)
+    Z = (slob.β * Vₜ * slob.Δx) / (slob.D)
+    P⁻ = calculate_left_jump_probability(Z)
+    P⁺ = 1 - P⁻
+    return P⁺, P⁻
 end
 
 
