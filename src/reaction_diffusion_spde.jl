@@ -1,22 +1,11 @@
-function initial_conditions_numerical(slob::SLOB, pₙ, V₀)
-    ud = (-V₀/(2.0*slob.Δx) + slob.D/(slob.Δx^2)) * ones(Float64, slob.M)
-    md = (-2*slob.D)/(slob.Δx^2) * ones(Float64, slob.M+1)
-    ld = (V₀/(2.0*slob.Δx) + slob.D/(slob.Δx^2)) * ones(Float64, slob.M)
-    A = Tridiagonal(ld, md, ud)
-
-    A[1,2] = 2*slob.D/(slob.Δx^2)
-    A[end, end-1] = 2*slob.D/(slob.Δx^2)
-
-    B = .-[slob.source_term(xᵢ, pₙ) for xᵢ in slob.x]
-    φ = A \ B
+function initial_conditions_steady_state(slob::SLOB, p₀)
+    φ = [(xᵢ - p₀) * slob.source_term.λ /
+         (2 * slob.D * slob.source_term.μ) *
+         exp((-slob.source_term.μ * slob.L^2) / 4) +
+         (sqrt(pi) * slob.source_term.λ *
+          erf(sqrt(slob.source_term.μ) * (p₀ - xᵢ))) /
+         (4 * slob.D * slob.source_term.μ^(3 / 2)) for xᵢ in slob.x]
     return φ
-end
-
-
-function initial_conditions_numerical(slob::SLOB, pₙ)
-    ϵ = rand(Normal(0.0, 1.0))
-    V₀ =sign(ϵ) * min(abs(slob.σ * ϵ), slob.Δx / slob.Δt)
-    return initial_conditions_numerical(slob, pₙ, V₀)
 end
 
 
