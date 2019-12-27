@@ -77,7 +77,7 @@ function dtrw_solver(slob::SLOB)
     P⁻s = fill(1/2, time_steps)
 
     t = 1
-    φ[:, t] = initial_conditions_numerical(slob, p[t], 0.0)
+    φ[:, t] = initial_conditions_steady_state(slob, p[t])
 
     while t <= time_steps
         τ, τ_periods = get_sub_period_time(slob, t, time_steps)
@@ -100,7 +100,7 @@ function dtrw_solver(slob::SLOB)
             return φ, p, mid_prices, P⁺s, P⁻s
         end
         t += 1
-        φ[:, t] = initial_conditions_numerical(slob, p[t-1])
+        φ[:, t] = initial_conditions_steady_state(slob, p[t-1])
         p[t] = extract_mid_price(slob, φ[:, t])
         @info "LOB Density recalculated. tick price = R$(p[t]) @t=$t"
     end
