@@ -76,45 +76,38 @@ end
 
 function dtrw_solver(slob::SLOB)
     time_steps = get_time_steps(slob.T, slob.Δt)
-    φ = ones(Float64, slob.M + 1, time_steps + 1)
-
     p = ones(Float64, time_steps + 1)
-    mid_prices = ones(Float64, slob.T + 1)
-
     p[1] = slob.p₀
-    mid_prices[1] = slob.p₀
 
-    P⁺s = fill(1/2-slob.nu*slob.Δt/2, time_steps)
-    P⁻s = fill(1/2-slob.nu*slob.Δt/2, time_steps)
     t = 1
-    φ[:, t] = initial_conditions_numerical(slob, p[t], 0.0)
+    φ = initial_conditions_numerical(slob, p[t], 0.0)
 
     while t <= time_steps
         τ, τ_periods = get_sub_period_time(slob, t, time_steps)
 
         for τₖ = 1:τ_periods
             t += 1
-            φ[:, t], P⁺s[t-1], P⁻s[t-1]  = intra_time_period_simulate(slob,
-                φ[:, t-1], p[t-1])
+            φ = intra_time_period_simulate(slob, φ, p[t-1])
             try
-                p[t] = extract_mid_price(slob, φ[:, t])
+                p[t] = extract_mid_price(slob, φ)
             catch e
                 println("Bounds Error at t=$t")
-                return φ, p, mid_prices, P⁺s, P⁻s
+                mid_prices = sample_mid_price_path(slob, p)
+                return mid_prices
             end
 
             @info "Intra-period simulation. tick price = R$(p[t]) @t=$t"
         end
         if t > time_steps
             mid_prices = sample_mid_price_path(slob, p)
-            return φ, p, mid_prices, P⁺s, P⁻s
+            return mid_prices
         end
         t += 1
-        φ[:, t] = initial_conditions_numerical(slob, p[t-1])
-        p[t] = extract_mid_price(slob, φ[:, t])
+        φ = initial_conditions_numerical(slob, p[t-1])
+        p[t] = extract_mid_price(slob, φ)
         @info "LOB Density recalculated. tick price = R$(p[t]) @t=$t"
     end
 
     mid_prices = sample_mid_price_path(slob, p)
-    return φ, p, mid_prices, P⁺s, P⁻s
+    return mid_prices
 end

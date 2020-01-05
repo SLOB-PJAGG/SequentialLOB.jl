@@ -18,7 +18,7 @@ include("../src/main.jl")
     end;
 
     @testset "Default Values" begin
-        lob_densities, price_paths, mid_price_bars, P⁺s, P⁻s = slob_model()
+        mid_price_bars = slob_model()
         @test size(mid_price_bars) == (101,1)
     end;
 

@@ -49,24 +49,15 @@ function (slob::SLOB)(seed::Int=-1)
     end
     time_steps = get_time_steps(slob.T, slob.Δt)
 
-    raw_price_paths = ones(Float64, time_steps + 1, slob.num_paths)
-    raw_price_paths[1, :] .= slob.p₀
+    mid_price_paths = ones(Float64, slob.T + 1, slob.num_paths)
 
-    sample_price_paths = ones(Float64, slob.T + 1, slob.num_paths)
-    sample_price_paths[1, :] .= slob.p₀
-
-    lob_densities = zeros(Float64, slob.M+1, time_steps + 1, slob.num_paths)
-    P⁺s = ones(Float64, time_steps, slob.num_paths)
-    P⁻s = ones(Float64, time_steps, slob.num_paths)
     for path in 1:slob.num_paths
         Random.seed!(seeds[path])
         @info "path $path with seed $(seeds[path])"
-        lob_densities[:, :, path], raw_price_paths[:, path],
-            sample_price_paths[:, path], P⁺s[:, path],
-            P⁻s[:, path] = dtrw_solver(slob)
+        mid_price_paths[:, path] = dtrw_solver(slob)
     end
 
-    return lob_densities, raw_price_paths, sample_price_paths, P⁺s, P⁻s
+    return mid_price_paths
 end
 
 function get_time_steps(T::Int, Δt::Float64)
