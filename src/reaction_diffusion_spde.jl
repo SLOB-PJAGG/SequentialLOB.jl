@@ -71,7 +71,7 @@ function intra_time_period_simulate(slob, φ, p)
     φ_next[2:end-1] = P⁺ * φ[1:end-2] + P⁻ * φ[3:end] +
         [slob.Δt * slob.source_term(xᵢ, p) for xᵢ in slob.x[2:end-1]]
 
-    return φ_next, P⁺, P⁻
+    return φ_next
 end
 
 function dtrw_solver(slob::SLOB)
