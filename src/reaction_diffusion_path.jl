@@ -16,8 +16,8 @@ end
 function SLOB(num_paths::Int64, T::Int64, p₀::Float64,
     M::Int64, L::Real, D::Float64, σ::Float64, nu::Float64,
     α::Float64, source_term::SourceTerm)
-    logger = FileLogger(Dict(Logging.Info => "info.log", Logging.Error => "error.log"), append=false)
-    global oldglobal = global_logger(logger)
+    # logger = FileLogger(Dict(Logging.Info => "info.log", Logging.Error => "error.log"), append=false)
+    # global oldglobal = global_logger(logger)
     x₀ = p₀ - 0.5*L
     xₘ = p₀ + 0.5*L
     @assert x₀ >= 0
@@ -53,7 +53,7 @@ function (slob::SLOB)(seed::Int=-1)
 
     for path in 1:slob.num_paths
         Random.seed!(seeds[path])
-        @info "path $path with seed $(seeds[path])"
+        # @info "path $path with seed $(seeds[path])"
         mid_price_paths[:, path] = dtrw_solver(slob)
     end
 

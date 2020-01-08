@@ -51,7 +51,7 @@ function get_sub_period_time(slob, t, time_steps)
     τ = rand(Exponential(slob.α))
     remaining_time = time_steps - t + 1
     τ_periods = min(floor(Int, τ/slob.Δt), remaining_time)
-    @info "Waiting time=$(round(τ, digits=4)) which equates to $τ_periods time periods"
+    # @info "Waiting time=$(round(τ, digits=4)) which equates to $τ_periods time periods"
     return τ, τ_periods
 end
 
@@ -88,15 +88,8 @@ function dtrw_solver(slob::SLOB)
         for τₖ = 1:τ_periods
             t += 1
             φ = intra_time_period_simulate(slob, φ, p[t-1])
-            try
-                p[t] = extract_mid_price(slob, φ)
-            catch e
-                println("Bounds Error at t=$t")
-                mid_prices = sample_mid_price_path(slob, p)
-                return mid_prices
-            end
+            p[t] = extract_mid_price(slob, φ)
 
-            @info "Intra-period simulation. tick price = R$(p[t]) @t=$t"
         end
         if t > time_steps
             mid_prices = sample_mid_price_path(slob, p)
@@ -105,7 +98,6 @@ function dtrw_solver(slob::SLOB)
         t += 1
         φ = initial_conditions_numerical(slob, p[t-1])
         p[t] = extract_mid_price(slob, φ)
-        @info "LOB Density recalculated. tick price = R$(p[t]) @t=$t"
     end
 
     mid_prices = sample_mid_price_path(slob, p)
