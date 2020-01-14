@@ -37,7 +37,12 @@ Each command line interface uses the same positional arguments which are:
 ```
 julia> using SequentialLOB
 julia> slob = SLOB(num_paths=1 ,T=2300, p₀=238.745,
-  M=100, L=120.0, D=1.0, σ=0.1, nu=0.1, α=10.0, λ=1.0, μ=0.2)
+  M=200, L=100.0, D=1.0, σ=0.1, nu=0.1, α=10.0, λ=1.0, μ=0.2)
 julia> slob(45)
 
+```
+
+### Shell
+```
+$ julia src/main.jl 45 1 2300 238.745 200 100.0 1.0 0.1 0.1 10.0 1.0 0.2
 ```
