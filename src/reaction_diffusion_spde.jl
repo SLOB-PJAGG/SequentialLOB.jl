@@ -7,7 +7,7 @@ function initial_conditions_numerical(slob::SLOB, pₙ, V₀)
     A[1,2] = 2*slob.D/(slob.Δx^2)
     A[end, end-1] = 2*slob.D/(slob.Δx^2)
 
-    B = .-[slob.source_term(xᵢ, pₙ) for xᵢ in slob.x]
+    B = [-slob.source_term(xᵢ, pₙ) for xᵢ in slob.x]
     φ = A \ B
     return φ
 end
@@ -32,18 +32,21 @@ function extract_mid_price(slob, lob_density)
 end
 
 
-function calculate_left_jump_probability(Z, nu_t)
-    return (1.0 - nu_t)/(exp(2*Z) + 1.0)
+function calculate_left_jump_probability(Z)
+    return (1.0)/(exp(2*Z) + 1.0)
+end
+
+
+function calculate_right_jump_probability(Z)
+    return (1.0)/(exp(-2*Z) + 1.0)
 end
 
 
 function calculate_jump_probabilities(slob, Vₜ)
     Z = (Vₜ * slob.Δx) / (2* slob.D)
-    nu_Δt = slob.nu * slob.Δt
-    p⁻ = calculate_left_jump_probability(Z, nu_Δt)
-    p⁺ = 1.0 - p⁻ - nu_Δt
+    p⁻ = calculate_left_jump_probability(Z)
+    p⁺ = calculate_right_jump_probability(Z)
     return p⁺, p⁻
-
 end
 
 
@@ -66,9 +69,9 @@ function intra_time_period_simulate(slob, φ, p)
     φₘ₊₁ = φ[end]
     φ_next = zeros(Float64, size(φ,1))
 
-    φ_next[1] = P⁺ * φ₋₁ + P⁻ * φ[2] + slob.Δt * slob.source_term(slob.x[1], p)
-    φ_next[end] = P⁻ * φₘ₊₁ + P⁺ * φ[end-1] + slob.Δt * slob.source_term(slob.x[end], p)
-    φ_next[2:end-1] = P⁺ * φ[1:end-2] + P⁻ * φ[3:end] +
+    φ_next[1] = P⁺ * φ₋₁ + P⁻ * φ[2] -slob.nu * slob.Δt * φ[1] + slob.Δt * slob.source_term(slob.x[1], p)
+    φ_next[end] = P⁻ * φₘ₊₁ + P⁺ * φ[end-1] -slob.nu * slob.Δt * φ[end] + slob.Δt * slob.source_term(slob.x[end], p)
+    φ_next[2:end-1] = P⁺ * φ[1:end-2] + P⁻ * φ[3:end] -slob.nu * slob.Δt * φ[2:end-1] +
         [slob.Δt * slob.source_term(xᵢ, p) for xᵢ in slob.x[2:end-1]]
 
     return φ_next
