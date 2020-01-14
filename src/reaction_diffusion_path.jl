@@ -35,8 +35,8 @@ SLOB(dict) = SLOB(
 
 
 SLOB(;num_paths::Int64=1, T::Int64=100, p₀::Real=100.0,
-    M::Int64=100, L::Real=50.0, D::Real=4.0, σ::Real=1.0,
-    nu::Real=0.1, α::Real=20.0, λ::Real=1.0, μ::Real=0.5) =
+    M::Int64=100, L::Real=50.0, D::Real=1.0, σ::Real=0.1,
+    nu::Real=0.1, α::Real=5.0, λ::Real=1.0, μ::Real=0.5) =
     SLOB(num_paths, T, p₀, M, L, D, σ, nu, α,
     SourceTerm(λ, μ))
 

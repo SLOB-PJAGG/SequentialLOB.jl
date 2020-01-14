@@ -30,11 +30,11 @@ include("../src/main.jl")
             "λ" => 1.0,
             "SEED" => 1,
             "nu" => 0.1,
-            "σ" => 1.0,
-            "D" => 4.0,
+            "σ" => 0.1,
+            "D" => 1.0,
             "M" => 100,
             "L" => 50.0,
-            "α" => 20.0)
+            "α" => 5.0)
     end
 
     @testset "Main Default Arguments" begin
